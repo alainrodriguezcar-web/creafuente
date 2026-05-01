@@ -14,9 +14,21 @@ const PORT = process.env.PORT || 3001;
 // Security
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    const allowed = [
+      'https://creafuente-frontend.vercel.app',
+      'http://localhost:3000'
+    ];
+    const clean = origin ? origin.replace(/\/$/, '') : '';
+    if (!origin || allowed.includes(clean)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS bloqueado: ' + origin));
+    }
+  },
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Rate limiting
